@@ -20,6 +20,7 @@ module Jekyll
         marker_img
         marker_url
         marker_popup_html
+        styles
       ).freeze
 
       class << self

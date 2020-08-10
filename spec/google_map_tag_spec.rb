@@ -12,12 +12,21 @@ describe Jekyll::Maps::GoogleMapTag do
       expect(content).to match(%r!(London|Paris)!)
     end
 
-    it "includes external js only once" do
-      expect(content.scan(%r!maps\.googleapis\.com!).length).to eq(1)
+    it "does not include external js directly (should be lazy loaded)" do
+      expect(content.scan(%r!maps\.googleapis\.com!).length).to eq(0)
+    end
+
+    it "registers Google Maps for lazy loading" do
+      expect(content).to match(%r!js.src = "//maps.google.com/maps/!)
     end
 
     it "renders API key" do
       expect(content).to match(%r!maps/api/js\?key=GOOGLE_MAPS_API_KEY!)
+    end
+
+    it "provides fallback method when IntersectionObserver is
+          not implemented/supported (older browsers)" do
+      expect(content).to match(%r!('IntersectionObserver' in window)!)
     end
   end
 
@@ -70,8 +79,8 @@ describe Jekyll::Maps::GoogleMapTag do
       end
 
       it "renders attributes" do
-        expected = %r!div id='foo' style='width:100px;height:50%;' class='baz bar'!
-        expect(output).to match(expected)
+        expect(output).to match("div id='foo' style='width:100px;height:50%;'")
+        expect(output).to match("class='baz bar jekyll-map'")
       end
 
       it "renders custom zoom setting" do
@@ -91,6 +100,19 @@ describe Jekyll::Maps::GoogleMapTag do
         height   = Jekyll::Maps::GoogleMapTag::DEFAULT_MAP_HEIGHT
         expected = %r!div id='foo' style='width:#{width}px;height:#{height}px;'!
         expect(output).to match(expected)
+      end
+    end
+
+    context "render with custom styles" do
+      let(:options) { "styles='fixture_style'" }
+      let(:output) do
+        Liquid::Template.parse("{% #{tag} #{options} %}").render!(context, {})
+      end
+
+      it "renders dimensions with default values" do
+        # styles content is loaded from fixtures/_data/maps_styles/fixture_style.json
+        expected = '"styles":[{"elementType":"geometry","stylers":[{"color":"#1d2c4d"}]}]'
+        expect(output).to include(expected)
       end
     end
   end

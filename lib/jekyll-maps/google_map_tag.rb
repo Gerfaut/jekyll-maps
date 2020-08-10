@@ -32,7 +32,7 @@ HTML
         attributes = []
         attributes << "id='#{@args[:attributes][:id]}'"
         attributes << render_dimensions
-        attributes << render_class if @args[:attributes][:class]
+        attributes << render_class
         attributes.join(" ")
       end
 
@@ -49,7 +49,14 @@ HTML
       def render_class
         css = @args[:attributes][:class]
         css = css.join(" ") if css.is_a?(Array)
-        %(class='#{css}')
+        %(class='#{css} jekyll-map')
+      end
+
+      private
+      def render_styles(site)
+        style_name = @args[:attributes][:styles] || "default"
+        maps_styles = site.data["maps_styles"] || {}
+        maps_styles[style_name] || "[]"
       end
 
       private
@@ -59,7 +66,8 @@ HTML
           :useCluster      => !@args[:flags][:no_cluster],
           :showMarker      => @args[:attributes][:show_marker] != "false",
           :showMarkerPopup => @args[:attributes][:show_popup] != "false",
-          :markerIcon      => @args[:attributes][:marker_icon]
+          :markerIcon      => @args[:attributes][:marker_icon],
+          :styles          => render_styles(site)
         }
         if @args[:attributes][:zoom]
           opts[:customZoom] = @args[:attributes][:zoom].to_i
