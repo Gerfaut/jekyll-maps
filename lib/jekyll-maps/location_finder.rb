@@ -28,7 +28,7 @@ module Jekyll
           :icon       => @options[:attributes][:marker_icon] || page["marker_icon"],
           :url        => @options[:attributes][:marker_url] || fetch_url(page),
           :image      => @options[:attributes][:marker_img] || page["image"] || "",
-          :popup_html => @options[:attributes][:marker_popup_html] || ""
+          :popup_html => @options[:attributes][:marker_popup_html] || page["excerpt"]
         }
       end
 
@@ -114,7 +114,7 @@ module Jekyll
           :url_text   => location["url_text"],
           :image      => location["image"] || document["image"] || "",
           :popup_html => location["marker_popup_html"] \
-                         || document["marker_popup_html"] || ""
+                         || document["marker_popup_html"] || document["excerpt"]
         }
       end
 
